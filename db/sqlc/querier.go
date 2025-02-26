@@ -10,6 +10,10 @@ import (
 
 type Querier interface {
 	GetFilmByTitle(ctx context.Context, title string) (Films, error)
+	insertFilm(ctx context.Context, arg insertFilmParams) (int32, error)
+	insertFilmChange(ctx context.Context, arg insertFilmChangeParams) error
+	insertFilmGenre(ctx context.Context, arg insertFilmGenreParams) error
+	insertOtherFilmInformation(ctx context.Context, arg insertOtherFilmInformationParams) error
 }
 
 var _ Querier = (*Queries)(nil)
