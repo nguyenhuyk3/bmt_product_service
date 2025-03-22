@@ -1,11 +1,9 @@
 package routers
 
 import (
-	"bmt_product_service/db/sqlc"
-	"bmt_product_service/global"
-	"bmt_product_service/internal/controllers"
-	"bmt_product_service/internal/implementations"
+	"bmt_product_service/internal/injectors"
 	"bmt_product_service/internal/middlewares"
+	"log"
 
 	"github.com/gin-gonic/gin"
 )
@@ -13,14 +11,16 @@ import (
 type ProductRouter struct{}
 
 func (pr *ProductRouter) InitProductRouter(router *gin.RouterGroup) {
-	sqlStore := sqlc.NewStore(global.Postgresql)
-	productService := implementations.NewProductService(sqlStore)
-	authController := controllers.NewProductService(productService)
+	productController, err := injectors.InitProductController()
+	if err != nil {
+		log.Fatalf("failed to initialize ProductController: %v", err)
+		return
+	}
 	getFromHeaderMiddleware := middlewares.NewGetFromHeaderMiddleware()
 
-	productController := router.Group("/film")
+	productRouterPublic := router.Group("/film")
 	{
-		productController.POST("/add", getFromHeaderMiddleware.GetEmailFromHeader(), authController.AddFilm)
-		productController.GET("/", authController.GetFilmById)
+		productRouterPublic.POST("/add", getFromHeaderMiddleware.GetEmailFromHeader(), productController.AddFilm)
+		productRouterPublic.GET("/", productController.GetFilmById)
 	}
 }
