@@ -25,3 +25,7 @@ type AddProductReq struct {
 	FilmChanges          filmChange           `json:"film_changes" binding:"required"`
 	OtherFilmInformation otherFilmInformation `json:"other_film_informations" binding:"required"`
 }
+
+type GetFilmByIdReq struct {
+	FilmId int `json:"film_id" binding:"required"`
+}

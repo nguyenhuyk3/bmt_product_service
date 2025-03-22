@@ -39,3 +39,13 @@ func (pc *ProductController) AddFilm(c *gin.Context) {
 
 	responses.SuccessResponse(c, http.StatusOK, "add film perform successfully!!", nil)
 }
+
+func (pc *ProductController) GetFilmById(c *gin.Context) {
+
+	ctx, cancel := context.WithTimeout(c.Request.Context(), 10*time.Second)
+	defer cancel()
+
+	data, _ := pc.ProductService.GetFilmById(ctx)
+
+	responses.SuccessResponse(c, http.StatusOK, "add film perform successfully!!", data)
+}

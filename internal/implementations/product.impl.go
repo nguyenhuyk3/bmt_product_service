@@ -25,3 +25,17 @@ func (p *productService) AddFilm(ctx context.Context, arg request.AddProductReq)
 
 	return http.StatusOK, nil
 }
+
+// GetFilmById implements services.IProduct.
+func (p *productService) GetFilmById(ctx context.Context) (interface{}, error) {
+	return map[string]interface{}{
+		"name":     "John",
+		"age":      30,
+		"isActive": true,
+		"scores":   []int{85, 90, 78},
+		"address": map[string]string{
+			"city":    "Hanoi",
+			"country": "Vietnam",
+		},
+	}, nil
+}

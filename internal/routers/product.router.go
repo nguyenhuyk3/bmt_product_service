@@ -19,5 +19,6 @@ func (pr *ProductRouter) InitProductRouter(router *gin.RouterGroup) {
 	productController := router.Group("/film")
 	{
 		productController.POST("/add", authController.AddFilm)
+		productController.GET("/", authController.GetFilmById)
 	}
 }

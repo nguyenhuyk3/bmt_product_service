@@ -10,5 +10,6 @@ func GetReleaseDateAsTime(strDate string) (time.Time, error) {
 	if err != nil {
 		return time.Time{}, fmt.Errorf("invalid date format: %v", err)
 	}
+
 	return parsedTime, nil
 }
