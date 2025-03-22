@@ -5,6 +5,7 @@ import (
 	"bmt_product_service/global"
 	"bmt_product_service/internal/controllers"
 	"bmt_product_service/internal/implementations"
+	"bmt_product_service/internal/middlewares"
 
 	"github.com/gin-gonic/gin"
 )
@@ -15,10 +16,11 @@ func (pr *ProductRouter) InitProductRouter(router *gin.RouterGroup) {
 	sqlStore := sqlc.NewStore(global.Postgresql)
 	productService := implementations.NewProductService(sqlStore)
 	authController := controllers.NewProductService(productService)
+	getFromHeaderMiddleware := middlewares.NewGetFromHeaderMiddleware()
 
 	productController := router.Group("/film")
 	{
-		productController.POST("/add", authController.AddFilm)
+		productController.POST("/add", getFromHeaderMiddleware.GetEmailFromHeader(), authController.AddFilm)
 		productController.GET("/", authController.GetFilmById)
 	}
 }

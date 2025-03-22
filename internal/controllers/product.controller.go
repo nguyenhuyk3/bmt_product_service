@@ -11,6 +11,10 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+const (
+	x_user_email = "X-User-Email"
+)
+
 type ProductController struct {
 	ProductService services.IProduct
 }
@@ -24,9 +28,11 @@ func NewProductService(productService services.IProduct) *ProductController {
 func (pc *ProductController) AddFilm(c *gin.Context) {
 	var req request.AddProductReq
 	if err := c.ShouldBindJSON(&req); err != nil {
-		responses.FailureResponse(c, http.StatusBadRequest, "request is invalid")
+		responses.FailureResponse(c, http.StatusBadRequest, "request is invalid!!")
 		return
 	}
+
+	req.FilmChanges.ChangedBy = c.GetString(x_user_email)
 
 	ctx, cancel := context.WithTimeout(c.Request.Context(), 10*time.Second)
 	defer cancel()

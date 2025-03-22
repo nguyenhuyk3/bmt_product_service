@@ -84,7 +84,7 @@ func (s *SqlStore) InsertFilmTran(ctx context.Context, arg request.AddProductReq
 
 		err = q.insertFilmChange(ctx, insertFilmChangeParams{
 			FilmID:    filmId,
-			ChangedBy: "Nguyen Quoc Huy",
+			ChangedBy: arg.FilmChanges.ChangedBy,
 			CreatedAt: pgtype.Timestamp{Time: time.Now(), Valid: true},
 			UpdatedAt: pgtype.Timestamp{Time: time.Now(), Valid: true},
 		})
