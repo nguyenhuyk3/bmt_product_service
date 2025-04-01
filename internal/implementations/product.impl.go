@@ -12,7 +12,7 @@ type productService struct {
 	SqlStore *sqlc.SqlStore
 }
 
-func NewProductService(sqlStore *sqlc.SqlStore) services.IProduct {
+func NewProductService(sqlStore *sqlc.SqlStore) services.IFilm {
 	return &productService{SqlStore: sqlStore}
 }
 

@@ -16,10 +16,10 @@ const (
 )
 
 type ProductController struct {
-	ProductService services.IProduct
+	ProductService services.IFilm
 }
 
-func NewProductController(productService services.IProduct) *ProductController {
+func NewProductController(productService services.IFilm) *ProductController {
 	return &ProductController{
 		ProductService: productService,
 	}
@@ -28,7 +28,7 @@ func NewProductController(productService services.IProduct) *ProductController {
 func (pc *ProductController) AddFilm(c *gin.Context) {
 	var req request.AddProductReq
 	if err := c.ShouldBindJSON(&req); err != nil {
-		responses.FailureResponse(c, http.StatusBadRequest, "request is invalid!!")
+		responses.FailureResponse(c, http.StatusBadRequest, "request is invalid")
 		return
 	}
 
@@ -43,15 +43,14 @@ func (pc *ProductController) AddFilm(c *gin.Context) {
 		return
 	}
 
-	responses.SuccessResponse(c, http.StatusOK, "add film perform successfully!!", nil)
+	responses.SuccessResponse(c, status, "add film perform successfully", nil)
 }
 
 func (pc *ProductController) GetFilmById(c *gin.Context) {
-
 	ctx, cancel := context.WithTimeout(c.Request.Context(), 10*time.Second)
 	defer cancel()
 
 	data, _ := pc.ProductService.GetFilmById(ctx)
 
-	responses.SuccessResponse(c, http.StatusOK, "add film perform successfully!!", data)
+	responses.SuccessResponse(c, http.StatusOK, "add film perform successfully", data)
 }

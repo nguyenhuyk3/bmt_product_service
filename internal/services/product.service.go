@@ -5,7 +5,7 @@ import (
 	"context"
 )
 
-type IProduct interface {
+type IFilm interface {
 	AddFilm(ctx context.Context, arg request.AddProductReq) (int, error)
 	GetFilmById(ctx context.Context) (interface{}, error)
 }
