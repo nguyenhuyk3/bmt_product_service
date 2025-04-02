@@ -18,6 +18,6 @@ VALUES ($1, $2)
 ON CONFLICT (film_id, genre) DO NOTHING;
 
 -- name: insertOtherFilmInformation :exec 
-INSERT INTO "other_film_informations" ("film_id", "poster_url", "trailer_url")
-VALUES ($1, $2, $3);
+INSERT INTO "other_film_informations" ("film_id","status", "poster_url", "trailer_url")
+VALUES ($1, $2, $3, $4);
 

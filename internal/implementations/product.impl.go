@@ -16,7 +16,7 @@ func NewProductService(sqlStore *sqlc.SqlStore) services.IFilm {
 	return &productService{SqlStore: sqlStore}
 }
 
-// AddFilm implements services.IProduct.
+// AddFilm implements services.IFilm.
 func (p *productService) AddFilm(ctx context.Context, arg request.AddProductReq) (int, error) {
 	err := p.SqlStore.InsertFilmTran(ctx, arg)
 	if err != nil {
@@ -26,7 +26,7 @@ func (p *productService) AddFilm(ctx context.Context, arg request.AddProductReq)
 	return http.StatusOK, nil
 }
 
-// GetFilmById implements services.IProduct.
+// GetFilmById implements services.IFilm.
 func (p *productService) GetFilmById(ctx context.Context) (interface{}, error) {
 	return map[string]interface{}{
 		"name":     "John",

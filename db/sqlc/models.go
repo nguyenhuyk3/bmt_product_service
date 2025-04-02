@@ -160,6 +160,49 @@ func (ns NullSeatTypes) Value() (driver.Value, error) {
 	return string(ns.SeatTypes), nil
 }
 
+type Statuses string
+
+const (
+	StatusesFailed  Statuses = "failed"
+	StatusesPending Statuses = "pending"
+	StatusesSuccess Statuses = "success"
+)
+
+func (e *Statuses) Scan(src interface{}) error {
+	switch s := src.(type) {
+	case []byte:
+		*e = Statuses(s)
+	case string:
+		*e = Statuses(s)
+	default:
+		return fmt.Errorf("unsupported scan type for Statuses: %T", src)
+	}
+	return nil
+}
+
+type NullStatuses struct {
+	Statuses Statuses `json:"statuses"`
+	Valid    bool     `json:"valid"` // Valid is true if Statuses is not NULL
+}
+
+// Scan implements the Scanner interface.
+func (ns *NullStatuses) Scan(value interface{}) error {
+	if value == nil {
+		ns.Statuses, ns.Valid = "", false
+		return nil
+	}
+	ns.Valid = true
+	return ns.Statuses.Scan(value)
+}
+
+// Value implements the driver Valuer interface.
+func (ns NullStatuses) Value() (driver.Value, error) {
+	if !ns.Valid {
+		return nil, nil
+	}
+	return string(ns.Statuses), nil
+}
+
 type Auditoriums struct {
 	ID           int32            `json:"id"`
 	CinemaID     int32            `json:"cinema_id"`
@@ -198,9 +241,10 @@ type Films struct {
 }
 
 type OtherFilmInformations struct {
-	FilmID     int32       `json:"film_id"`
-	PosterUrl  pgtype.Text `json:"poster_url"`
-	TrailerUrl pgtype.Text `json:"trailer_url"`
+	FilmID     int32        `json:"film_id"`
+	Status     NullStatuses `json:"status"`
+	PosterUrl  pgtype.Text  `json:"poster_url"`
+	TrailerUrl pgtype.Text  `json:"trailer_url"`
 }
 
 type Seats struct {

@@ -111,8 +111,17 @@ func (s *SqlStore) InsertFilmTran(ctx context.Context, arg request.AddProductReq
 			}
 		}
 
+		var filmStatus NullStatuses
+		if err = filmStatus.Scan(arg.OtherFilmInformation.Status); err != nil {
+			return fmt.Errorf("failed to scan status: %v", err)
+		}
+
 		err = q.insertOtherFilmInformation(ctx, insertOtherFilmInformationParams{
 			FilmID: filmId,
+			Status: NullStatuses{
+				Statuses: filmStatus.Statuses,
+				Valid:    true,
+			},
 			PosterUrl: pgtype.Text{
 				String: arg.OtherFilmInformation.PosterUrl,
 				Valid:  true,

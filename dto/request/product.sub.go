@@ -5,6 +5,7 @@ type filmChange struct {
 }
 
 type otherFilmInformation struct {
+	Status     string `json:"status" binding:"required"`
 	PosterUrl  string `json:"poster_url" binding:"required"`
 	TrailerUrl string `json:"trailer_url" binding:"required"`
 }

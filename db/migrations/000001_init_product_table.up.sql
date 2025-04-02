@@ -36,6 +36,12 @@ CREATE TYPE "seat_types" AS ENUM (
   'standard'
 );
 
+CREATE TYPE "statuses" AS ENUM (
+  'failed',
+  'pending',
+  'success'
+);
+
 CREATE TABLE "films" (
   "id" serial PRIMARY KEY NOT NULL,
   "title" text NOT NULL,
@@ -58,6 +64,7 @@ CREATE TABLE "film_genres" (
 
 CREATE TABLE "other_film_informations" (
   "film_id" int PRIMARY KEY,
+  "status" statuses,
   "poster_url" text,
   "trailer_url" text
 );
@@ -102,7 +109,7 @@ CREATE INDEX ON "films" ("id");
 
 CREATE UNIQUE INDEX ON "film_genres" ("film_id", "genre");
 
-CREATE INDEX ON "other_film_informations" ("film_id");
+CREATE UNIQUE INDEX ON "other_film_informations" ("film_id");
 
 CREATE INDEX ON "cinemas" ("id");
 

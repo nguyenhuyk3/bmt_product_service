@@ -22,7 +22,7 @@ func (g *GetFromHeaderMiddleware) GetEmailFromHeader() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		email := c.GetHeader(x_user_email)
 		if email == "" {
-			responses.FailureResponse(c, http.StatusBadRequest, "email is not empty!!")
+			responses.FailureResponse(c, http.StatusBadRequest, "email is not empty")
 			c.Abort()
 			return
 		}

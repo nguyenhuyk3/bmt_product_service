@@ -94,17 +94,23 @@ func (q *Queries) insertFilmGenre(ctx context.Context, arg insertFilmGenreParams
 }
 
 const insertOtherFilmInformation = `-- name: insertOtherFilmInformation :exec
-INSERT INTO "other_film_informations" ("film_id", "poster_url", "trailer_url")
-VALUES ($1, $2, $3)
+INSERT INTO "other_film_informations" ("film_id","status", "poster_url", "trailer_url")
+VALUES ($1, $2, $3, $4)
 `
 
 type insertOtherFilmInformationParams struct {
-	FilmID     int32       `json:"film_id"`
-	PosterUrl  pgtype.Text `json:"poster_url"`
-	TrailerUrl pgtype.Text `json:"trailer_url"`
+	FilmID     int32        `json:"film_id"`
+	Status     NullStatuses `json:"status"`
+	PosterUrl  pgtype.Text  `json:"poster_url"`
+	TrailerUrl pgtype.Text  `json:"trailer_url"`
 }
 
 func (q *Queries) insertOtherFilmInformation(ctx context.Context, arg insertOtherFilmInformationParams) error {
-	_, err := q.db.Exec(ctx, insertOtherFilmInformation, arg.FilmID, arg.PosterUrl, arg.TrailerUrl)
+	_, err := q.db.Exec(ctx, insertOtherFilmInformation,
+		arg.FilmID,
+		arg.Status,
+		arg.PosterUrl,
+		arg.TrailerUrl,
+	)
 	return err
 }
