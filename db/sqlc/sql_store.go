@@ -1,10 +1,14 @@
 package sqlc
 
 import (
+	"bmt_product_service/dto/messages"
 	"bmt_product_service/dto/request"
+	"bmt_product_service/global"
+	messagebroker "bmt_product_service/internal/message_broker"
 	"bmt_product_service/utils/convertors"
 	"context"
 	"fmt"
+	"strconv"
 	"time"
 
 	"github.com/jackc/pgx/v5/pgtype"
@@ -114,6 +118,15 @@ func (s *SqlStore) InsertFilmTran(ctx context.Context, arg request.AddProductReq
 		var filmStatus NullStatuses
 		if err = filmStatus.Scan(arg.OtherFilmInformation.Status); err != nil {
 			return fmt.Errorf("failed to scan status: %v", err)
+		}
+
+		uploadFilmImageMessage := messages.UploadFilmImageMessage{
+			ProductId: strconv.Itoa(int(filmId)),
+			ImageUrl:  arg.OtherFilmInformation.PosterUrl,
+		}
+		err = messagebroker.SendMessage(global.UPLOAD_IMAGE_TOPIC, global.UPLOAD_IMAGE_TOPIC, uploadFilmImageMessage)
+		if err != nil {
+			return fmt.Errorf("failed to send message to kafka: %v", err)
 		}
 
 		err = q.insertOtherFilmInformation(ctx, insertOtherFilmInformationParams{

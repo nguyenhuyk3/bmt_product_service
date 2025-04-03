@@ -6,13 +6,12 @@ type Config struct {
 }
 
 type serviceSetting struct {
-	PostgreSql postgreSetting `mapstructure:"database"`
+	PostgreSql   postgreSetting `mapstructure:"database"`
+	KafkaSetting kafkaSetting   `mapstructure:"kafka"`
 }
 
 type serverSetting struct {
 	ServerPort string `mapstructure:"SERVER_PORT"`
-	APIKey     string `mapstructure:"API_KEY"`
-	SercetKey  string `mapstructure:"SERCET_KEY"`
 }
 
 type postgreSetting struct {
@@ -24,4 +23,10 @@ type postgreSetting struct {
 	MaxIdleConns    int    `mapstructure:"max_idle_conns"`
 	MaxOpenConns    int    `mapstructure:"max_open_conns"`
 	ConnMaxLifetime int    `mapstructure:"conn_max_lifetime"`
+}
+
+type kafkaSetting struct {
+	KafkaBroker_1 string `mapstructure:"kafka_broker_1"`
+	KafkaBroker_2 string `mapstructure:"kafka_broker_2"`
+	KafkaBroker_3 string `mapstructure:"kafka_broker_3"`
 }
