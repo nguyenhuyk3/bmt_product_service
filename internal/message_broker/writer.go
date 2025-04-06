@@ -71,7 +71,6 @@ func SendMessage(topic string, key string, value interface{}) error {
 		Key:   []byte(key),
 		Value: msgBytes,
 	})
-
 	if err != nil {
 		log.Printf("failed to send message to Kafka: %v", err)
 		return err

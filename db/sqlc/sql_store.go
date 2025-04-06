@@ -126,7 +126,16 @@ func (s *SqlStore) InsertFilmTran(ctx context.Context, arg request.AddProductReq
 		}
 		err = messagebroker.SendMessage(global.UPLOAD_IMAGE_TOPIC, global.UPLOAD_IMAGE_TOPIC, uploadFilmImageMessage)
 		if err != nil {
-			return fmt.Errorf("failed to send message to kafka: %v", err)
+			return fmt.Errorf("failed to send upload film image message to kafka: %v", err)
+		}
+
+		uploadFilmVideoMessage := messages.UploadFilmVideoMessage{
+			ProductId: strconv.Itoa(int(filmId)),
+			VideoUrl:  arg.OtherFilmInformation.TrailerUrl,
+		}
+		err = messagebroker.SendMessage(global.UPLOAD_VIDEO_TOPIC, global.UPLOAD_VIDEO_TOPIC, uploadFilmVideoMessage)
+		if err != nil {
+			return fmt.Errorf("failed to send upload film video message to kafka: %v", err)
 		}
 
 		err = q.insertOtherFilmInformation(ctx, insertOtherFilmInformationParams{
