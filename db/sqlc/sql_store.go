@@ -5,6 +5,7 @@ import (
 	"bmt_product_service/dto/request"
 	"bmt_product_service/global"
 	"bmt_product_service/internal/message_broker/producers"
+	"log"
 
 	"bmt_product_service/utils/convertors"
 	"context"
@@ -67,18 +68,35 @@ func sendMessage(filmId int32, imageUrl, videoUrl string) error {
 		ProductId: strconv.Itoa(int(filmId)),
 		ImageUrl:  imageUrl,
 	}
-	err := producers.SendMessage(global.UPLOAD_IMAGE_TOPIC, global.UPLOAD_IMAGE_TOPIC, uploadFilmImageMessage)
-	if err != nil {
-		return fmt.Errorf("failed to send upload film image message to kafka: %v", err)
+
+	for i := 0; i < 3; i++ {
+		err := producers.SendMessage(global.UPLOAD_IMAGE_TOPIC, global.UPLOAD_IMAGE_TOPIC, uploadFilmImageMessage)
+		if err != nil {
+			if i == 2 {
+				return fmt.Errorf("failed to send upload film image message to kafka: %v", err)
+			}
+			log.Printf("retrying image message (attempt %d): %v\n", i+1, err)
+			continue
+		}
+		log.Printf("sent image message for productId %d with url %s\n", filmId, imageUrl)
+		break
 	}
 
 	uploadFilmVideoMessage := messages.UploadFilmVideoMessage{
 		ProductId: strconv.Itoa(int(filmId)),
 		VideoUrl:  videoUrl,
 	}
-	err = producers.SendMessage(global.UPLOAD_VIDEO_TOPIC, global.UPLOAD_VIDEO_TOPIC, uploadFilmVideoMessage)
-	if err != nil {
-		return fmt.Errorf("failed to send upload film video message to kafka: %v", err)
+	for i := 0; i < 3; i++ {
+		err := producers.SendMessage(global.UPLOAD_VIDEO_TOPIC, global.UPLOAD_VIDEO_TOPIC, uploadFilmVideoMessage)
+		if err != nil {
+			if i == 2 {
+				return fmt.Errorf("failed to send upload film video message to kafka: %v", err)
+			}
+			log.Printf("retrying video message (attempt %d): %v\n", i+1, err)
+			continue
+		}
+		log.Printf("sent video message for productId %d with url %s\n", filmId, videoUrl)
+		break
 	}
 
 	return nil
