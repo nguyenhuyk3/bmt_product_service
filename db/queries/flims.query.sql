@@ -21,8 +21,21 @@ ON CONFLICT (film_id, genre) DO NOTHING;
 INSERT INTO "other_film_informations" ("film_id","status", "poster_url", "trailer_url")
 VALUES ($1, $2, $3, $4);
 
--- name: updateOtherFilmInformation :exec
+-- name: UpdatePosterUrlAndCheckStatus :exec
 UPDATE "other_film_informations"
-SET status = $2, poster_url = $3, trailer_url = $4
-WHERE film_id = $1;
+SET poster_url = $2, 
+    status = CASE 
+        WHEN trailer_url IS NOT NULL AND LENGTH($2::text) > 0 THEN 'success' 
+        ELSE status
+    END
+WHERE "film_id" = $1;
+
+-- name: UpdateVideoUrlAndCheckStatus :exec
+UPDATE "other_film_informations"
+SET trailer_url = $2, 
+    status = CASE 
+        WHEN poster_url IS NOT NULL AND LENGTH($2::text) > 0 THEN 'success' 
+        ELSE status
+    END
+WHERE "film_id" = $1;
 

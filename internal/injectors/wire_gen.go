@@ -11,14 +11,23 @@ import (
 	"bmt_product_service/internal/controllers"
 	"bmt_product_service/internal/implementations"
 	"bmt_product_service/internal/injectors/provider"
+	"bmt_product_service/internal/message_broker/consummers"
 )
+
+// Injectors from film_upload_consummer.wire.go:
+
+func InitFilmUploadConsummer() (*consummers.FilmUploadConsummer, error) {
+	queries := provider.ProvideQueries()
+	filmUploadConsummer := consummers.NewFilmUploadConsummer(queries)
+	return filmUploadConsummer, nil
+}
 
 // Injectors from product.controller.wire.go:
 
 func InitProductController() (*controllers.ProductController, error) {
 	pool := provider.ProvidePgxPool()
 	sqlStore := sqlc.NewStore(pool)
-	iProduct := implementations.NewProductService(sqlStore)
-	productController := controllers.NewProductController(iProduct)
+	iFilm := implementations.NewProductService(sqlStore)
+	productController := controllers.NewProductController(iFilm)
 	return productController, nil
 }

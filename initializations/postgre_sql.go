@@ -4,6 +4,7 @@ import (
 	"bmt_product_service/global"
 	"context"
 	"fmt"
+	"log"
 	"os"
 
 	"github.com/jackc/pgx/v5/pgxpool"
@@ -15,20 +16,19 @@ func initPostgreSql() {
 	connStr := fmt.Sprintf("host=%s port=%d user=%s password=%s dbname=%s sslmode=disable",
 		config.Host, config.Port, config.Username, config.Password, dbName)
 	ctx := context.Background()
-
 	db, err := pgxpool.New(ctx, connStr)
 	if err != nil {
-		fmt.Println("error connecting to the database:", err)
+		log.Println("error connecting to the database:", err)
 		return
 	}
 
 	if err := db.Ping(ctx); err != nil {
-		fmt.Println("error pinging the database:", err)
+		log.Println("error pinging the database:", err)
 
 		os.Exit(1)
 	}
 
-	fmt.Println("successfully connected to the database")
+	log.Println("=============== successfully connected to the database ===============")
 
 	global.Postgresql = db
 }

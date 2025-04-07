@@ -30,6 +30,46 @@ func (q *Queries) GetFilmByTitle(ctx context.Context, title string) (Films, erro
 	return i, err
 }
 
+const updatePosterUrlAndCheckStatus = `-- name: UpdatePosterUrlAndCheckStatus :exec
+UPDATE "other_film_informations"
+SET poster_url = $2, 
+    status = CASE 
+        WHEN trailer_url IS NOT NULL AND LENGTH($2::text) > 0 THEN 'success' 
+        ELSE status
+    END
+WHERE "film_id" = $1
+`
+
+type UpdatePosterUrlAndCheckStatusParams struct {
+	FilmID    int32       `json:"film_id"`
+	PosterUrl pgtype.Text `json:"poster_url"`
+}
+
+func (q *Queries) UpdatePosterUrlAndCheckStatus(ctx context.Context, arg UpdatePosterUrlAndCheckStatusParams) error {
+	_, err := q.db.Exec(ctx, updatePosterUrlAndCheckStatus, arg.FilmID, arg.PosterUrl)
+	return err
+}
+
+const updateVideoUrlAndCheckStatus = `-- name: UpdateVideoUrlAndCheckStatus :exec
+UPDATE "other_film_informations"
+SET trailer_url = $2, 
+    status = CASE 
+        WHEN poster_url IS NOT NULL AND LENGTH($2::text) > 0 THEN 'success' 
+        ELSE status
+    END
+WHERE "film_id" = $1
+`
+
+type UpdateVideoUrlAndCheckStatusParams struct {
+	FilmID     int32       `json:"film_id"`
+	TrailerUrl pgtype.Text `json:"trailer_url"`
+}
+
+func (q *Queries) UpdateVideoUrlAndCheckStatus(ctx context.Context, arg UpdateVideoUrlAndCheckStatusParams) error {
+	_, err := q.db.Exec(ctx, updateVideoUrlAndCheckStatus, arg.FilmID, arg.TrailerUrl)
+	return err
+}
+
 const insertFilm = `-- name: insertFilm :one
 INSERT INTO "films" ("title", "description", "release_date", "duration")
 VALUES ($1, $2, $3, $4)
@@ -107,29 +147,6 @@ type insertOtherFilmInformationParams struct {
 
 func (q *Queries) insertOtherFilmInformation(ctx context.Context, arg insertOtherFilmInformationParams) error {
 	_, err := q.db.Exec(ctx, insertOtherFilmInformation,
-		arg.FilmID,
-		arg.Status,
-		arg.PosterUrl,
-		arg.TrailerUrl,
-	)
-	return err
-}
-
-const updateOtherFilmInformation = `-- name: updateOtherFilmInformation :exec
-UPDATE "other_film_informations"
-SET status = $2, poster_url = $3, trailer_url = $4
-WHERE film_id = $1
-`
-
-type updateOtherFilmInformationParams struct {
-	FilmID     int32        `json:"film_id"`
-	Status     NullStatuses `json:"status"`
-	PosterUrl  pgtype.Text  `json:"poster_url"`
-	TrailerUrl pgtype.Text  `json:"trailer_url"`
-}
-
-func (q *Queries) updateOtherFilmInformation(ctx context.Context, arg updateOtherFilmInformationParams) error {
-	_, err := q.db.Exec(ctx, updateOtherFilmInformation,
 		arg.FilmID,
 		arg.Status,
 		arg.PosterUrl,
