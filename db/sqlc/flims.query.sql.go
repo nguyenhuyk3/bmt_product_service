@@ -114,3 +114,26 @@ func (q *Queries) insertOtherFilmInformation(ctx context.Context, arg insertOthe
 	)
 	return err
 }
+
+const updateOtherFilmInformation = `-- name: updateOtherFilmInformation :exec
+UPDATE "other_film_informations"
+SET status = $2, poster_url = $3, trailer_url = $4
+WHERE film_id = $1
+`
+
+type updateOtherFilmInformationParams struct {
+	FilmID     int32        `json:"film_id"`
+	Status     NullStatuses `json:"status"`
+	PosterUrl  pgtype.Text  `json:"poster_url"`
+	TrailerUrl pgtype.Text  `json:"trailer_url"`
+}
+
+func (q *Queries) updateOtherFilmInformation(ctx context.Context, arg updateOtherFilmInformationParams) error {
+	_, err := q.db.Exec(ctx, updateOtherFilmInformation,
+		arg.FilmID,
+		arg.Status,
+		arg.PosterUrl,
+		arg.TrailerUrl,
+	)
+	return err
+}

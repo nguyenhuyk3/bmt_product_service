@@ -21,3 +21,8 @@ ON CONFLICT (film_id, genre) DO NOTHING;
 INSERT INTO "other_film_informations" ("film_id","status", "poster_url", "trailer_url")
 VALUES ($1, $2, $3, $4);
 
+-- name: updateOtherFilmInformation :exec
+UPDATE "other_film_informations"
+SET status = $2, poster_url = $3, trailer_url = $4
+WHERE film_id = $1;
+

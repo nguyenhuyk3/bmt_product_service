@@ -1,4 +1,4 @@
-package messagebroker
+package producers
 
 import (
 	"bmt_product_service/global"

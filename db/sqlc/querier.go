@@ -14,6 +14,7 @@ type Querier interface {
 	insertFilmChange(ctx context.Context, arg insertFilmChangeParams) error
 	insertFilmGenre(ctx context.Context, arg insertFilmGenreParams) error
 	insertOtherFilmInformation(ctx context.Context, arg insertOtherFilmInformationParams) error
+	updateOtherFilmInformation(ctx context.Context, arg updateOtherFilmInformationParams) error
 }
 
 var _ Querier = (*Queries)(nil)

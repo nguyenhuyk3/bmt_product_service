@@ -4,7 +4,8 @@ import (
 	"bmt_product_service/dto/messages"
 	"bmt_product_service/dto/request"
 	"bmt_product_service/global"
-	messagebroker "bmt_product_service/internal/message_broker"
+	"bmt_product_service/internal/message_broker/producers"
+
 	"bmt_product_service/utils/convertors"
 	"context"
 	"fmt"
@@ -59,6 +60,28 @@ func parseDurationToPGInterval(durationStr string) (pgtype.Interval, error) {
 		Microseconds: duration.Microseconds(),
 		Valid:        true,
 	}, nil
+}
+
+func sendMessage(filmId int32, imageUrl, videoUrl string) error {
+	uploadFilmImageMessage := messages.UploadFilmImageMessage{
+		ProductId: strconv.Itoa(int(filmId)),
+		ImageUrl:  imageUrl,
+	}
+	err := producers.SendMessage(global.UPLOAD_IMAGE_TOPIC, global.UPLOAD_IMAGE_TOPIC, uploadFilmImageMessage)
+	if err != nil {
+		return fmt.Errorf("failed to send upload film image message to kafka: %v", err)
+	}
+
+	uploadFilmVideoMessage := messages.UploadFilmVideoMessage{
+		ProductId: strconv.Itoa(int(filmId)),
+		VideoUrl:  videoUrl,
+	}
+	err = producers.SendMessage(global.UPLOAD_VIDEO_TOPIC, global.UPLOAD_VIDEO_TOPIC, uploadFilmVideoMessage)
+	if err != nil {
+		return fmt.Errorf("failed to send upload film video message to kafka: %v", err)
+	}
+
+	return nil
 }
 
 func (s *SqlStore) InsertFilmTran(ctx context.Context, arg request.AddProductReq) error {
@@ -120,22 +143,9 @@ func (s *SqlStore) InsertFilmTran(ctx context.Context, arg request.AddProductReq
 			return fmt.Errorf("failed to scan status: %v", err)
 		}
 
-		uploadFilmImageMessage := messages.UploadFilmImageMessage{
-			ProductId: strconv.Itoa(int(filmId)),
-			ImageUrl:  arg.OtherFilmInformation.PosterUrl,
-		}
-		err = messagebroker.SendMessage(global.UPLOAD_IMAGE_TOPIC, global.UPLOAD_IMAGE_TOPIC, uploadFilmImageMessage)
+		err = sendMessage(filmId, arg.OtherFilmInformation.PosterUrl, arg.OtherFilmInformation.TrailerUrl)
 		if err != nil {
-			return fmt.Errorf("failed to send upload film image message to kafka: %v", err)
-		}
-
-		uploadFilmVideoMessage := messages.UploadFilmVideoMessage{
-			ProductId: strconv.Itoa(int(filmId)),
-			VideoUrl:  arg.OtherFilmInformation.TrailerUrl,
-		}
-		err = messagebroker.SendMessage(global.UPLOAD_VIDEO_TOPIC, global.UPLOAD_VIDEO_TOPIC, uploadFilmVideoMessage)
-		if err != nil {
-			return fmt.Errorf("failed to send upload film video message to kafka: %v", err)
+			return err
 		}
 
 		err = q.insertOtherFilmInformation(ctx, insertOtherFilmInformationParams{
@@ -145,11 +155,11 @@ func (s *SqlStore) InsertFilmTran(ctx context.Context, arg request.AddProductReq
 				Valid:    true,
 			},
 			PosterUrl: pgtype.Text{
-				String: arg.OtherFilmInformation.PosterUrl,
+				String: "",
 				Valid:  true,
 			},
 			TrailerUrl: pgtype.Text{
-				String: arg.OtherFilmInformation.TrailerUrl,
+				String: "",
 				Valid:  true,
 			},
 		})
