@@ -24,6 +24,7 @@ func initKafkaWriter() {
 			Balancer: &kafka.LeastBytes{},
 			// Reduce wait times for faster batch submissions
 			BatchTimeout: 500 * time.Millisecond,
+			MaxAttempts:  3,
 		}
 		// log.Println("kafka producer initialized")
 	})

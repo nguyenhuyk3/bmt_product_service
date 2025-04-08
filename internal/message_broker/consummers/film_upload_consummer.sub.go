@@ -6,9 +6,9 @@ import (
 	"bmt_product_service/global"
 	"context"
 	"encoding/json"
-	"fmt"
 	"log"
 	"strconv"
+	"time"
 
 	"github.com/jackc/pgx/v5/pgtype"
 	"github.com/segmentio/kafka-go"
@@ -16,9 +16,10 @@ import (
 
 func (f *FilmUploadConsummer) startReader(topic string) {
 	reader := kafka.NewReader(kafka.ReaderConfig{
-		Brokers: []string{global.Config.ServiceSetting.KafkaSetting.KafkaBroker_1},
-		GroupID: global.PRODUCT_SERVICE_GROUP,
-		Topic:   topic,
+		Brokers:        []string{global.Config.ServiceSetting.KafkaSetting.KafkaBroker_1},
+		GroupID:        global.PRODUCT_SERVICE_GROUP,
+		Topic:          topic,
+		CommitInterval: time.Second * 5,
 	})
 	defer reader.Close()
 
@@ -41,8 +42,6 @@ func (f *FilmUploadConsummer) processMessage(topic string, value []byte) {
 			log.Printf("failed to unmarshal image message: %v\n", err)
 			return
 		}
-
-		fmt.Println(message)
 
 		f.handleImageObjectKeyTopic(message)
 
@@ -75,7 +74,9 @@ func (f *FilmUploadConsummer) handleImageObjectKeyTopic(message messages.Returne
 		},
 	})
 	if err != nil {
-		log.Printf("failed to update poster url for film id %d: %v\n", productId, err)
+		log.Printf("\nfailed to update poster url for film id %d: %v\n", productId, err)
+	} else {
+		log.Printf("\nupdate poster url for film id %d successfully\n", productId)
 	}
 }
 
@@ -94,6 +95,8 @@ func (f *FilmUploadConsummer) handleVideoObjectKeyTopic(message messages.Returne
 		},
 	})
 	if err != nil {
-		log.Printf("failed to update trailer url for film id %d: %v\n", productId, err)
+		log.Printf("\nfailed to update trailer url for film id %d: %v\n", productId, err)
+	} else {
+		log.Printf("\nupdate trailer url for film id %d successfully\n", productId)
 	}
 }
