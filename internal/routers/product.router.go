@@ -20,7 +20,11 @@ func (pr *ProductRouter) InitProductRouter(router *gin.RouterGroup) {
 
 	productRouterPublic := router.Group("/film")
 	{
-		productRouterPublic.POST("/add", getFromHeaderMiddleware.GetEmailFromHeader(), productController.AddFilm)
-		productRouterPublic.GET("/", productController.GetFilmById)
+		filmRouterPrivate := productRouterPublic.Group("/admin")
+		{
+			filmRouterPrivate.POST("/add", getFromHeaderMiddleware.GetEmailFromHeader(), productController.AddFilm)
+			filmRouterPrivate.GET("/get_all_films", productController.GetAllFilms)
+		}
+
 	}
 }

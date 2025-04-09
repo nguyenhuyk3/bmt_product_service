@@ -5,6 +5,7 @@ import (
 	"bmt_product_service/dto/request"
 	"bmt_product_service/internal/services"
 	"context"
+	"fmt"
 	"net/http"
 )
 
@@ -26,16 +27,16 @@ func (p *productService) AddFilm(ctx context.Context, arg request.AddProductReq)
 	return http.StatusOK, nil
 }
 
-// GetFilmById implements services.IFilm.
-func (p *productService) GetFilmById(ctx context.Context) (interface{}, error) {
-	return map[string]interface{}{
-		"name":     "John",
-		"age":      30,
-		"isActive": true,
-		"scores":   []int{85, 90, 78},
-		"address": map[string]string{
-			"city":    "Hanoi",
-			"country": "Vietnam",
-		},
-	}, nil
+// GetAllFilms implements services.IFilm.
+func (p *productService) GetAllFilms(ctx context.Context) (int, interface{}, error) {
+	films, err := p.SqlStore.Queries.GetAllFilms(ctx)
+	if err != nil {
+		return http.StatusInternalServerError, nil, err
+	}
+
+	if len(films) == 0 {
+		return http.StatusNotFound, nil, fmt.Errorf("no movies found")
+	}
+
+	return http.StatusOK, films, nil
 }

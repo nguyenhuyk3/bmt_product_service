@@ -9,6 +9,7 @@ import (
 )
 
 type Querier interface {
+	GetAllFilms(ctx context.Context) ([]GetAllFilmsRow, error)
 	GetFilmByTitle(ctx context.Context, title string) (Films, error)
 	UpdatePosterUrlAndCheckStatus(ctx context.Context, arg UpdatePosterUrlAndCheckStatusParams) error
 	UpdateVideoUrlAndCheckStatus(ctx context.Context, arg UpdateVideoUrlAndCheckStatusParams) error

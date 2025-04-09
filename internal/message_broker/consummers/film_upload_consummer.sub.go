@@ -26,7 +26,7 @@ func (f *FilmUploadConsummer) startReader(topic string) {
 	for {
 		message, err := reader.ReadMessage(context.Background())
 		if err != nil {
-			log.Printf("Error reading message: %v\n", err)
+			log.Printf("error reading message: %v\n", err)
 			continue
 		}
 
@@ -74,9 +74,9 @@ func (f *FilmUploadConsummer) handleImageObjectKeyTopic(message messages.Returne
 		},
 	})
 	if err != nil {
-		log.Printf("\nfailed to update poster url for film id %d: %v\n", productId, err)
+		log.Printf("failed to update poster url for film id %d: %v\n", productId, err)
 	} else {
-		log.Printf("\nupdate poster url for film id %d successfully\n", productId)
+		log.Printf("update poster url for film id %d successfully\n", productId)
 	}
 }
 
@@ -95,8 +95,8 @@ func (f *FilmUploadConsummer) handleVideoObjectKeyTopic(message messages.Returne
 		},
 	})
 	if err != nil {
-		log.Printf("\nfailed to update trailer url for film id %d: %v\n", productId, err)
+		log.Printf("failed to update trailer url for film id %d: %v\n", productId, err)
 	} else {
-		log.Printf("\nupdate trailer url for film id %d successfully\n", productId)
+		log.Printf("update trailer url for film id %d successfully\n", productId)
 	}
 }

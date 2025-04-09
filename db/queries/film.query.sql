@@ -25,7 +25,9 @@ VALUES ($1, $2, $3, $4);
 UPDATE "other_film_informations"
 SET poster_url = $2, 
     status = CASE 
-        WHEN trailer_url IS NOT NULL AND LENGTH($2::text) > 0 THEN 'success' 
+        WHEN trailer_url IS NOT NULL
+            AND LENGTH(trailer_url) > 0 
+            AND LENGTH($2::text) > 0 THEN 'success' 
         ELSE status
     END
 WHERE "film_id" = $1;
@@ -34,8 +36,26 @@ WHERE "film_id" = $1;
 UPDATE "other_film_informations"
 SET trailer_url = $2, 
     status = CASE 
-        WHEN poster_url IS NOT NULL AND LENGTH($2::text) > 0 THEN 'success' 
+        WHEN poster_url IS NOT NULL 
+        AND LENGTH(poster_url) > 0
+        AND LENGTH($2::text) > 0 THEN 'success' 
         ELSE status
     END
 WHERE "film_id" = $1;
+
+-- name: GetAllFilms :many
+SELECT 
+    f.id, f.title, f.description, f.release_date, f.duration,
+    ARRAY_AGG(DISTINCT fg.genre::text) AS genres,
+    ofi.status, ofi.poster_url, ofi.trailer_url
+FROM films AS f
+LEFT JOIN other_film_informations AS ofi ON f.id = ofi.film_id
+LEFT JOIN film_genres AS fg ON fg.film_id = f.id
+GROUP BY 
+    f.id, f.title, f.description, f.release_date, f.duration,
+    ofi.status, ofi.poster_url, ofi.trailer_url
+ORDER BY f.release_date DESC;
+
+
+
 

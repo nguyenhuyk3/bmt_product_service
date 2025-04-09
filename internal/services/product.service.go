@@ -7,5 +7,5 @@ import (
 
 type IFilm interface {
 	AddFilm(ctx context.Context, arg request.AddProductReq) (int, error)
-	GetFilmById(ctx context.Context) (interface{}, error)
+	GetAllFilms(ctx context.Context) (int, interface{}, error)
 }
