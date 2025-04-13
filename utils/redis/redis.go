@@ -6,8 +6,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"time"
-
-	"github.com/go-redis/redis"
 )
 
 var (
@@ -50,7 +48,7 @@ func Delete(key string) error {
 func Get(key string, result interface{}) error {
 	value, err := global.RDb.Get(ctx, key).Result()
 	if err != nil {
-		if err == redis.Nil {
+		if err.Error() == "redis: nil" {
 			return fmt.Errorf("key %s does not exist", key)
 		}
 

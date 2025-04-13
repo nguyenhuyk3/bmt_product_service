@@ -9,7 +9,7 @@ import (
 func Run() {
 	loadConfigs()
 	initPostgreSql()
-
+	initRedis()
 	messagebroker.InitFilmUploadConsummer()
 
 	initRouter()
