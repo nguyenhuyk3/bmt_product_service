@@ -1,4 +1,4 @@
-package implementations
+package product
 
 import (
 	"bmt_product_service/db/sqlc"
@@ -12,11 +12,17 @@ import (
 )
 
 type productService struct {
-	SqlStore *sqlc.SqlStore
+	SqlStore    sqlc.IStore
+	RedisClient services.IRedis
 }
 
-func NewProductService(sqlStore *sqlc.SqlStore) services.IFilm {
-	return &productService{SqlStore: sqlStore}
+func NewProductService(
+	sqlStore sqlc.IStore,
+	redisClient services.IRedis) services.IFilm {
+	return &productService{
+		SqlStore:    sqlStore,
+		RedisClient: redisClient,
+	}
 }
 
 // AddFilm implements services.IFilm.
@@ -36,7 +42,7 @@ func (p *productService) GetAllFilms(ctx context.Context) (int, interface{}, err
 	err := redis.Get(global.GET_ALL_FILMS_WITH_ADMIN_ROLE, &films)
 	if err != nil {
 		if err.Error() == fmt.Sprintf("key %s does not exist", global.GET_ALL_FILMS_WITH_ADMIN_ROLE) {
-			films, err = p.SqlStore.Queries.GetAllFilms(ctx)
+			films, err = p.SqlStore.GetAllFilms(ctx)
 			if err != nil {
 				return http.StatusInternalServerError, nil, err
 			}

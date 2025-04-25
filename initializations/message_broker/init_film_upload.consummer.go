@@ -11,5 +11,5 @@ func InitFilmUploadConsummer() {
 		log.Fatalf("an error occur when initiallizating FILM UPLOAD CONSUMMER: %v\n", err)
 	}
 
-	filmUploadConsummer.InitReaders()
+	filmUploadConsummer.InitConsummers()
 }

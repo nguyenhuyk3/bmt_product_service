@@ -24,7 +24,7 @@ func NewFilmUploadConsummer(sqlQuery *sqlc.Queries) *FilmUploadConsummer {
 	}
 }
 
-func (f *FilmUploadConsummer) InitReaders() {
+func (f *FilmUploadConsummer) InitConsummers() {
 	log.Printf("=============== Product Service is listening for film uploading messages... ===============\n\n\n")
 
 	for _, topic := range topics {

@@ -9,9 +9,11 @@ package injectors
 import (
 	"bmt_product_service/db/sqlc"
 	"bmt_product_service/internal/controllers"
-	"bmt_product_service/internal/implementations"
+	"bmt_product_service/internal/implementations/message_broker/consummers"
+	"bmt_product_service/internal/implementations/message_broker/writer"
+	"bmt_product_service/internal/implementations/product"
+	"bmt_product_service/internal/implementations/redis"
 	"bmt_product_service/internal/injectors/provider"
-	"bmt_product_service/internal/message_broker/consummers"
 )
 
 // Injectors from film_upload_consummer.wire.go:
@@ -26,8 +28,10 @@ func InitFilmUploadConsummer() (*consummers.FilmUploadConsummer, error) {
 
 func InitProductController() (*controllers.ProductController, error) {
 	pool := provider.ProvidePgxPool()
-	sqlStore := sqlc.NewStore(pool)
-	iFilm := implementations.NewProductService(sqlStore)
+	iMessageBroker := writer.NewKafkaWriter()
+	iStore := sqlc.NewStore(pool, iMessageBroker)
+	iRedis := redis.NewRedisClient()
+	iFilm := product.NewProductService(iStore, iRedis)
 	productController := controllers.NewProductController(iFilm)
 	return productController, nil
 }

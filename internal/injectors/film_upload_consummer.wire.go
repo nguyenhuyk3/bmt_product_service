@@ -3,8 +3,8 @@
 package injectors
 
 import (
+	"bmt_product_service/internal/implementations/message_broker/consummers"
 	"bmt_product_service/internal/injectors/provider"
-	"bmt_product_service/internal/message_broker/consummers"
 
 	"github.com/google/wire"
 )

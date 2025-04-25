@@ -4,9 +4,9 @@ import (
 	"bmt_product_service/dto/messages"
 	"bmt_product_service/dto/request"
 	"bmt_product_service/global"
-	"bmt_product_service/internal/message_broker/producers"
-
+	"bmt_product_service/internal/services"
 	"bmt_product_service/utils/convertors"
+
 	"context"
 	"fmt"
 	"strconv"
@@ -18,14 +18,8 @@ import (
 
 type SqlStore struct {
 	connPool *pgxpool.Pool
+	Writer   services.IMessageBroker
 	*Queries
-}
-
-func NewStore(connPool *pgxpool.Pool) *SqlStore {
-	return &SqlStore{
-		connPool: connPool,
-		Queries:  New(connPool),
-	}
 }
 
 func (s *SqlStore) execTran(ctx context.Context, fn func(*Queries) error) error {
@@ -62,13 +56,14 @@ func parseDurationToPGInterval(durationStr string) (pgtype.Interval, error) {
 	}, nil
 }
 
-func sendMessage(filmId int32, imageUrl, videoUrl string) error {
+func (s *SqlStore) sendMessage(filmId int32, imageUrl, videoUrl string) error {
 	uploadFilmImageMessage := messages.UploadFilmImageMessage{
 		ProductId: strconv.Itoa(int(filmId)),
 		ImageUrl:  imageUrl,
 	}
 
-	err := producers.SendMessage(
+	err := s.Writer.SendMessage(
+		context.Background(),
 		global.UPLOAD_IMAGE_TOPIC,
 		strconv.Itoa(int(filmId)),
 		uploadFilmImageMessage)
@@ -81,7 +76,8 @@ func sendMessage(filmId int32, imageUrl, videoUrl string) error {
 		VideoUrl:  videoUrl,
 	}
 
-	err = producers.SendMessage(
+	err = s.Writer.SendMessage(
+		context.Background(),
 		global.UPLOAD_VIDEO_TOPIC,
 		strconv.Itoa(int(filmId)),
 		uploadFilmVideoMessage)
@@ -92,6 +88,7 @@ func sendMessage(filmId int32, imageUrl, videoUrl string) error {
 	return nil
 }
 
+// InsertFilmTran implements IStore.
 func (s *SqlStore) InsertFilmTran(ctx context.Context, arg request.AddProductReq) error {
 	err := s.execTran(ctx, func(q *Queries) error {
 		interval, err := parseDurationToPGInterval(arg.FilmInformation.Duration)
@@ -151,7 +148,7 @@ func (s *SqlStore) InsertFilmTran(ctx context.Context, arg request.AddProductReq
 			return fmt.Errorf("failed to scan status: %v", err)
 		}
 
-		err = sendMessage(filmId, arg.OtherFilmInformation.PosterUrl, arg.OtherFilmInformation.TrailerUrl)
+		err = s.sendMessage(filmId, arg.OtherFilmInformation.PosterUrl, arg.OtherFilmInformation.TrailerUrl)
 		if err != nil {
 			return err
 		}
@@ -184,4 +181,14 @@ func (s *SqlStore) InsertFilmTran(ctx context.Context, arg request.AddProductReq
 	}
 
 	return nil
+}
+
+func NewStore(
+	connPool *pgxpool.Pool,
+	writer services.IMessageBroker) IStore {
+	return &SqlStore{
+		connPool: connPool,
+		Writer:   writer,
+		Queries:  New(connPool),
+	}
 }

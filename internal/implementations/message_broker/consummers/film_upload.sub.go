@@ -16,7 +16,11 @@ import (
 
 func (f *FilmUploadConsummer) startReader(topic string) {
 	reader := kafka.NewReader(kafka.ReaderConfig{
-		Brokers:        []string{global.Config.ServiceSetting.KafkaSetting.KafkaBroker_1},
+		Brokers: []string{
+			global.Config.ServiceSetting.KafkaSetting.KafkaBroker_1,
+			global.Config.ServiceSetting.KafkaSetting.KafkaBroker_2,
+			global.Config.ServiceSetting.KafkaSetting.KafkaBroker_3,
+		},
 		GroupID:        global.PRODUCT_SERVICE_GROUP,
 		Topic:          topic,
 		CommitInterval: time.Second * 5,
