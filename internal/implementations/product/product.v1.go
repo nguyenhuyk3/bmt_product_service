@@ -5,7 +5,6 @@ import (
 	"bmt_product_service/dto/request"
 	"bmt_product_service/global"
 	"bmt_product_service/internal/services"
-	"bmt_product_service/utils/redis"
 	"context"
 	"fmt"
 	"net/http"
@@ -39,7 +38,7 @@ func (p *productService) AddFilm(ctx context.Context, arg request.AddProductReq)
 func (p *productService) GetAllFilms(ctx context.Context) (int, interface{}, error) {
 	var films []sqlc.GetAllFilmsRow
 
-	err := redis.Get(global.GET_ALL_FILMS_WITH_ADMIN_ROLE, &films)
+	err := p.RedisClient.Get(global.GET_ALL_FILMS_WITH_ADMIN_ROLE, &films)
 	if err != nil {
 		if err.Error() == fmt.Sprintf("key %s does not exist", global.GET_ALL_FILMS_WITH_ADMIN_ROLE) {
 			films, err = p.SqlStore.GetAllFilms(ctx)
@@ -47,7 +46,7 @@ func (p *productService) GetAllFilms(ctx context.Context) (int, interface{}, err
 				return http.StatusInternalServerError, nil, err
 			}
 
-			savingErr := redis.Save(global.GET_ALL_FILMS_WITH_ADMIN_ROLE, &films, 60*24*10)
+			savingErr := p.RedisClient.Save(global.GET_ALL_FILMS_WITH_ADMIN_ROLE, &films, 60*24*10)
 			if savingErr != nil {
 				return http.StatusOK, nil, fmt.Errorf("warning: failed to save to Redis: %v", savingErr)
 			}
